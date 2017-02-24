@@ -6,11 +6,12 @@ public class ReplaySystem : MonoBehaviour {
 
     private const int bufferFrames = 100;
     private MyKeyFrame[] keyFrames = new MyKeyFrame[bufferFrames];
-    private Rigidbody rigidBody;
 
+    private Rigidbody rigidBody;
     private GameManager gameManager;
 
-	// Use this for initialization
+
+    // Use this for initialization
 	void Start () {
         rigidBody = GetComponent<Rigidbody> ();
         gameManager = FindObjectOfType<GameManager>();
@@ -28,11 +29,21 @@ public class ReplaySystem : MonoBehaviour {
     private void Playback () {
         rigidBody.isKinematic = true;
 
-        int frame = Time.frameCount % bufferFrames;
-        print ("Reading frame: " + frame);
+        if (Time.frameCount < bufferFrames) {   // buffer underflow
+            int frame = Time.frameCount % bufferFrames;
+            //print ("Reading frame: " + frame);
 
-        transform.position = keyFrames[frame].position;
-        transform.rotation = keyFrames[frame].rotation;
+            transform.position = keyFrames[frame].position;
+            transform.rotation = keyFrames[frame].rotation;
+
+            // Debug.LogWarning ("Underflow");
+        } else {
+            int frame = Time.frameCount % bufferFrames;
+            //print ("Reading frame: " + frame);
+
+            transform.position = keyFrames[frame].position;
+            transform.rotation = keyFrames[frame].rotation;
+        }
     }
 
     private void Record () {
@@ -40,9 +51,9 @@ public class ReplaySystem : MonoBehaviour {
 
         int frame = Time.frameCount % bufferFrames;
         float time = Time.time;
-        print ("Writing frame: " + frame);
+        //print ("Writing frame: " + frame);
 
-        keyFrames[frame] = new MyKeyFrame (time ,transform.position ,transform.rotation);
+        keyFrames[frame] = new MyKeyFrame (time, transform.position, transform.rotation);
     }
 
     /// <summary>
